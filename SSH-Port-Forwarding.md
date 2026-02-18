@@ -52,3 +52,5 @@ Setelah melakukan SSH Dynamic Port Forwarding, koneksi dapat digunakan mirip sep
 Catatan: Dynamic Port Forwarding tidak membuat seluruh sistem menggunakan proxy, melainkan hanya aplikasi yang dikonfigurasi untuk menggunakan proxy tersebut.
 
 Selain sebagai alternatif penggunaan VPN yang ringan, SSH Dynamic Port Forwarding juga digunakan untuk melakukan pivoting, yaitu teknik memanfaatkan sebuah device atau server sebagai perantara (jembatan) untuk mengakses jaringan atau layanan yang tidak dapat diakses secara langsung. Contohnya, ketika pengguna tidak dapat mengakses website C secara langsung, tetapi memiliki akses SSH ke server B yang dapat mengakses website tersebut, maka pengguna dapat melakukan SSH Dynamic Port Forwarding ke server B. Dengan demikian, koneksi dari device pengguna akan diteruskan melalui server B sehingga website C dapat diakses melalui jaringan server B. SSH Dynamic Port Forwarding memiliki berbagai kegunaan lainnya, terutama dalam kegiatan administrasi jaringan, pengujian keamanan, dan eksplorasi jaringan internal.
+
+[Baca Kembali Tentang SSH-Server](https://github.com/Kaguai10/ssh-server)
