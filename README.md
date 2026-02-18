@@ -12,7 +12,7 @@ Sebelum masuk ke proses instalasi, pastikan server yang akan digunakan sudah ter
 
 ```bash
 apt update
-apt install openssh-server -y
+apt install ssh -y
 ```
 
 Setelah melakukan Penginstalan kalian dapat memeriksa status ssh menggunakan perintah berikut ini:
