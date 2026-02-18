@@ -29,7 +29,9 @@ SSH sacara default berjalan di port 22. Jika status SSH sudah aktif dan berjalan
 #ssh user@ip
 ssh kaguai@192.168.10.10
 ```
-Setelah penginstalan SSH secara default kita hanya bisa meremote user demi keamanan agar pihak luar tidak dapat meremote root. Namun jika kite memerlukan akses root secara langsung disaat melakukan ssh kita dapat mengubah konfigurasi file sshd_config pada bagian Root login permission . *Note: lebih aman kita melakukan ssh ke User lalu dari terminal kita masuk ke root dengan perintah `sudo su` atau `su`.
+
+------------------------------------------------------------------
+Setelah penginstalan SSH secara default kita hanya bisa meremote user demi keamanan agar pihak luar tidak dapat meremote root. Namun jika kite memerlukan akses root secara langsung disaat melakukan ssh kita dapat mengubah konfigurasi file sshd_config pada bagian Root login permission . ***Note**: lebih aman kita melakukan ssh ke User lalu dari terminal kita masuk ke root dengan perintah `sudo su` atau `su`.
 ```bash
 nano /etc/ssh/sshd_config
 ```
@@ -43,6 +45,20 @@ Ubah Value PermitRootLogin menjadi yes Untuk mengizinkan ssh dengan root
  36 #MaxSessions 10
 ```
 
+------------------------------------------------------------------------
+Atau kalian juga bisa membatasi User untuk bisa Di SSH. Cara Konfigurasinya pun sama pada file sshd_config yang disimpan di direktori `/etc/ssh` . Untuk membati user yang bisa dapat di SSH kalian dapat menambahakan `AllowUsers` pada baris paling bawah pada file config `sshd_config`. Kalian bisa Tuliskan nama user yang diizinkan untuk Di SSH. Berikut contoh nya:
+
+```bash
+nano /etc/ssh/sshd_config
+```
+```txt
+...
+AllowUsers kaguai admin
+```
+
+Dengan menambahkan `AllowUsers` dan memasuksan nama user maka hanya user tersebut yang bisa kita ssh. Pada contoh tersebut user yang dizinkan untuk di SSH ada user dengan nama kaguai dan admin. Jadi misal pada server kalian memiliki nama user lain maka tidak dapat di SSH.
+
+-----------------------------------------------------------------------
 Selain itu kita dapat juga merubah default port pada SSH dari 22 yaitu ke port yang kita inginkan, Untuk mengubahnya pun kita dapat melakukannya dengan mengkonfigurasi file sshd_config
 
 Ubah Value Port dari 22 menjadi nomor port yang kalian inginkan
@@ -58,46 +74,46 @@ Jika Nomor port ssh diubah maka dalam melakukan koneksi atau remote shell ada ta
 ssh root@192.168.10.10 -p 1010
 ```
 
-## SSH Keygen
-ssh-keygen adalah alat baris perintah (command-line tool) standar pada sistem Unix, Linux, macOS, dan Windows yang digunakan untuk membuat, mengelola, dan mengonversi pasangan kunci kriptografi (public dan private key) untuk autentikasi SSH. Untuk Membuat ssh-keygen kalian dapat mengikuti tutorial ini:
-
-Untuk membuat SSH Keygen kalian melakukannya di pihak client. Jadi SSH-Keygen ini digunakan agar Server bisa langsung mengenali client-nya menggunakan key. Untuk membuatnya cukup jalankan perintah `ssh-keygen` Untuk membuat Kunci SSH yang baru.
-
+-------------------------------------------------------------------
+Lalu kalian juga dapat membuat agar setiap ssh tidak perlu memasukan password. Tetapi SSH kita akan divalidasi menggunakan key yang dibuat. Ini dapat kita lakukan jika kalian mengirim file Key Public ke server terlebih dahulu sebelum menonaktifkan `PasswordAuthenticatin`. Ini dapat kita lakukan konfigurasi pada file sshd_config.
 ```bash
-ssh-keygen
+nano /etc/ssh/sshd_config
 ```
-Secara default SSH Keygen akan membuat key menggunakan algoritma RSA, Namun kalian dapat menggunakan algoritma lain dengan menambahkan parameter `-t` ssh-keygen memiliki Algoritma seperti ed25519, rsa, ecdsa, ataupun dsa. Berikut perbandingan Algoritma SSH Keygen
-| Algoritma | Dasar Kriptografi (Cara Kerja) | Ukuran Key | Keunggulan | Kekurangan | Dampak Praktis (di dunia nyata) |
-| --------- | ------------------------------ | ------------ | ------------ | ----------- | --------------- |
-| **RSA** | Berdasarkan **faktorisasi bilangan prima besar**. Keamanan = susah memfaktorkan n = p × q | 2048–4096 bit | - Sangat kompatibel (didukung hampir semua OS & server lama) <br> - Konsep mudah dipahami (matematika dasar) | - Perlu key besar agar aman <br> - Proses tanda tangan & verifikasi lebih lambat <br> - File key besar | - Login SSH sedikit lebih lambat <br> - Cocok untuk sistem lama <br> - Beban CPU lebih tinggi dibanding ECC |
-| **DSA** | Berdasarkan **Discrete Logarithm Problem** di bilangan modulo | Tetap 1024 bit | - Dulu standar pemerintah (lama) <br> - Struktur mirip RSA (mudah dipelajari sejarahnya) | - Ukuran key kecil (lemah) <br> - Rentan terhadap serangan modern <br> - Banyak server menolak DSA | - Risiko key bisa dipalsukan <br> - Tidak cocok untuk sistem modern |
-| **ECDSA** | Berdasarkan **Elliptic Curve Discrete Logarithm Problem (ECDLP)**                         | 256 / 384 / 521 bit | - Lebih kecil dari RSA tapi setara kuatnya <br> - Lebih cepat dari RSA <br> - Hemat bandwidth | - Implementasi lebih kompleks <br> - Keamanan sangat tergantung kualitas random number <br> - Kurang stabil di sistem lama | - Login lebih cepat dari RSA <br> - Lebih efisien di server & IoT |
-| **ed25519** | Varian khusus ECC (Curve25519) dengan desain modern & aman secara default | Tetap (≈256 bit) | - Aman tanpa perlu pilih ukuran bit <br> - Sangat cepat <br> - Tahan kesalahan implementasi <br> - Key kecil | - Tidak didukung sistem SSH sangat tua | - Login SSH paling cepat <br> - File key kecil <br> - Minim risiko salah konfigurasi |
-
-Contoh penggunaan alogaritma menggunakan ed25519
-```bash
-ssh-keygen -t ed25519
+```txt
+ 38 PubkeyAuthentication yes
+ 39
+ 40 # Expect .ssh/authorized_keys2 to be disregarded by default in future.
+ 41 #AuthorizedKeysFile     .ssh/authorized_keys .ssh/authorized_keys2
+ 42
+ 43 #AuthorizedPrincipalsFile none
+ 44
+ 45 #AuthorizedKeysCommand none
+ 46 #AuthorizedKeysCommandUser nobody
+ 47
+ 48 # For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
+ 49 #HostbasedAuthentication no
+ 50 # Change to yes if you don't trust ~/.ssh/known_hosts for
+ 51 # HostbasedAuthentication
+ 52 #IgnoreUserKnownHosts no
+ 53 # Don't read the user's ~/.rhosts and ~/.shosts files
+ 54 #IgnoreRhosts yes
+ 55
+ 56 # To disable tunneled clear text passwords, change to no here!
+ 57 PasswordAuthentication no
 ```
-Dalam pembuatan ssh-keygen kalian akan diminta tempat menyimpan key ssh `Enter file in which to save the key (/home/kaguai/.ssh/id_ed25519):` Jika kalian ingin biarkan default maka file key akan disimpan di direktori `.ssh` Jika ingin mengubahnya maka kalian dapat merubahnya dengan menuliskan path terbaru.
 
-Selain meminta tempat penyimpanan file key ssh-keygen juga akan meminta password `Enter passphrase for "/home/kaguai/.ssh/id_ed25519" (empty for no passphrase):` Jika kalian tidak ingin menggunakan password maka kalian bisa langsung tekan enter 2 kali. Jika kalian ingin menggunakan password bisa langsung ketikan password-nya lalu nanti akan ada konfirmasi password `Enter same passphrase again: ` maka tuliskan kembali password dengan sama. Password ini akan digunakan untuk memverivikasi saat melakukan SSH.
+Setelah itu kalian dapat mencoba SSH dan login tanpa password tapi nanti server akan memverivikasi priv key yang anda punya. Untuk membuat File Key kalian dapat membaca tentang SSH-Keygen. Kalian juga bisa belajar lainnya
 
-Setelah selesai membuat SSH Keygen kalian dapat mengirimnya ke server menggunakaan `ssh-copy-id`.
+| Materi | URL |
+|---------|-------|
+| SSH Keygen | https://github.com/Kaguai10/ssh-server/SSH-Keygen.md | 
+| SSH Port Forwarding | https://github.com/Kaguai10/ssh-server/SSH-Port-Forwarding.md |
+| SCP | https://github.com/Kaguai10/ssh-server/SCP.md |
 
-```bash
-ssh-copy-id kaguai@192.168.10.10 #sesuaikan dengan nama user server kalian
-```
+**Note: Setiap setelah melakukan Konfigurasi jangan lupa untuk merestart SSH `systemctl restart ssh`. Merestart SSH diwajibkan agar konfigurasi kita ditetapkan, service SSH diperbarui sesuai config. dan agar Konfigurasi berjalan**
 
-Setelah mengcopy kunci ssh selanjutnya melakukan SSH ke server
-```bash 
-ssh kaguai@192.168.10.10
-```
-Jika kalian dalam pembuatan SSH Keygen tidak membuat password untuk file key-nya maka kalian akan langsung login ke terminalnya. *Tetapi* Jika kalian menggunakan password maka saat login kalian akan diminta untuk memverivikasi File Key kalian dengan meminta password `Enter passphrase for key '/home/kaguai/.ssh/id_ed25519': ` Disini kalian cukup masukan password file Key yang kalian buat tadi diawal.
-
-Untuk mengetahui lebih tentang SSH kalian dapat menggunakan manual-nya ssh menggunakan perintah ini
+Kalian juga bisa mempelajari manual-nya SSH, dengan membaca dari manual SSH menggunakan perintah dibawah ini
 ```bash
 man ssh
 ```
-
-
 
